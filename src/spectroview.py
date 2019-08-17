@@ -19,8 +19,8 @@ specFilePath = Path(specFile)
 
 S = np.load(specFilePath)
 
-print(len(S[0])) # the number of samples
-print(len(S))    # number of mel bands
+#print(len(S[0])) # the number of samples
+#print(len(S))    # number of mel bands
 
 plt.figure(figsize=(10, 4))
 librosa.display.specshow(librosa.power_to_db(S, ref=np.max), y_axis='mel', x_axis='time')

@@ -1,2 +1,8 @@
 assets/
 training_checkpoints/
+src/__pycache__/dnb_constants.cpython-37.pyc
+src/__pycache__/dnb_constants.cpython-36.pyc
+src/__pycache__/data_funcs.cpython-36.pyc
+src/__pycache__/common.cpython-37.pyc
+src/__pycache__/common.cpython-36.pyc
+logs/training/events.out.tfevents.1565987934.ONYX.v2

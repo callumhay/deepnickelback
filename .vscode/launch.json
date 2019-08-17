@@ -5,12 +5,62 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Python: spectro_to_audio.py",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "args": [
+        "./assets/spectrograms_256/normalized/01. How You Remind Me [NORMALIZED].npy",
+        "./assets/music/test",
+        "15"
+      ]
+    },
+    {
+      "name": "Python: spectronormalizer.py",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "args": [
+        "./assets/spectrograms_256"
+      ]
+    },
+    {
+      "name": "Python: spectrogen.py",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "args": [
+        "./assets/music/terrible/normalized",
+        "./assets/spectrograms_256"
+      ]
+    },
+    {
+      "name": "Python: nickelback_gen.py",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "args": [
+        "./assets/spectrograms_256/normalized/01. How You Remind Me [NORMALIZED].npy",
+        "./assets/music/generated/data",
+        "30",
+        "./training_checkpoints",
+        "./assets/spectrograms_256"
+      ]
+    },
+    {
       "name": "Python: trainer.py",
       "type": "python",
       "request": "launch",
       "program": "${file}",
       "console": "integratedTerminal",
-      "args": ["./assets/spectrograms_256", "./training_checkpoints"]
+      "args": [
+        "./assets/spectrograms_256/small_dataset",
+        "./training_checkpoints"
+      ]
     },
     {
       "name": "Python: Current File",
