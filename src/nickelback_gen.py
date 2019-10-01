@@ -18,6 +18,7 @@ from pathlib import Path
 
 import common
 import dnb_constants
+import data_funcs
 
 if len(sys.argv) < 6:
   print("Usage: python " + sys.argv[0] + " <seed_spectrogram_filepath> <output_dir> <song_duration_in_secs> <checkpoint_base_dir> <spectrogram_path>")
@@ -67,33 +68,54 @@ seed_S = np.load(seed_file_str)
 # Restore the most recent deepnickelback model
 print("Loading model...")
 # Let's change the batch size of the model to be just 1
-model = common.build_model(batch_size=1, checkpoint_base_dir=checkpt_base_dirpath)
+model_version = dnb_constants.DEEP_NICKELBACK_VERSION
+batch_size = 1
+seq_len = 1
+stateful = True
+
+model = common.build_model(batch_size=batch_size, checkpoint_base_dir=checkpt_base_dirpath, version=model_version, stateful=stateful, compile=False)
+model.build(tf.TensorShape([batch_size, None, dnb_constants.NUM_MEL_CHANNELS]))
 model.summary()
 
 print("Generating terrible music...")
 sr = 22050
-S = common.generate_terrible_mel_spectrogram(model, seed_S, sr, song_duration_s)
+S = common.generate_terrible_mel_spectrogram(model, seed_S, sr, song_duration_s, stateful)
 
-# Save out the normalized spectrogram first
-#spectrogram_filepath = output_dirpath.joinpath(seed_filepath.stem + "_spectrogram [NORMALIZED].npy").resolve()
-#print("Saving intermediate mel spectrogram file: " + str(spectrogram_filepath))
-#np.save(spectrogram_filepath, S)
+if "s" in model_version:
+  # De-standardize the spectrogram file
+  with open(data_funcs.get_std_spec_filepath(seed_filepath), 'r') as spec_file:
+    mean = ast.literal_eval(spec_file.readline())
+    std  = ast.literal_eval(spec_file.readline())
 
-# ... Now, de-normalize the spectrogram based on the values stored in the normalization spec file
-min_val = 0
-max_vals = []
-with open(spectrogram_dirpath.joinpath(dnb_constants.NORMALIZED_DIR_NAME + "/" + dnb_constants.NORMALIZED_SPEC_FILE_NAME), 'r') as spec_file:
-  min_val = ast.literal_eval(spec_file.readline())
-  max_vals = ast.literal_eval(spec_file.readline())
+  for mel in range(len(S)):
+    for i in range(len(S[mel])):
+      S[mel][i] = (S[mel][i] * std) + mean
 
-for mel in range(len(S)):
-  for i in range(len(S[mel])):
-    S[mel][i] = S[mel][i] * (max_vals[mel] - min_val) + min_val
+  out_spectrogram_filepath = output_dirpath.joinpath(seed_filepath.stem + "_spectrogram [DESTANDARDIZED].npy").resolve()
 
-# ... and save out the de-normalized spectrogram as well
-spectrogram_filepath = output_dirpath.joinpath(seed_filepath.stem + "_spectrogram [DENORMALIZED].npy").resolve()
-print("Saving normalized mel spectrogram file: " + str(spectrogram_filepath))
-np.save(spectrogram_filepath, S)
+else:
+  # De-normalize the spectrogram based on the values stored in the normalization spec file
+  min_val = 0
+  max_vals = []
+  with open(spectrogram_dirpath.joinpath(dnb_constants.NORMALIZED_DIR_NAME + "/" + dnb_constants.NORMALIZED_SPEC_FILE_NAME), 'r') as spec_file:
+    min_val = ast.literal_eval(spec_file.readline())
+    max_val = ast.literal_eval(spec_file.readline())
+
+  for mel in range(len(S)):
+    for i in range(len(S[mel])):
+      S[mel][i] = S[mel][i] * (max_val - min_val) + min_val
+
+  # ... and save out the de-normalized spectrogram as well
+  out_spectrogram_filepath = output_dirpath.joinpath(seed_filepath.stem + "_spectrogram [DENORMALIZED].npy").resolve()
+
+before_filepath = out_spectrogram_filepath
+count = 1
+while out_spectrogram_filepath.exists():
+  out_spectrogram_filepath = before_filepath.with_name(before_filepath.stem + "(" + str(count) + ")" + before_filepath.suffix)
+  count += 1
+
+print("Saving mel spectrogram file: " + str(out_spectrogram_filepath))
+np.save(out_spectrogram_filepath, S)
 
 '''
 print("Converting mel spectrogram to audio...")

@@ -29,7 +29,6 @@ def convert_spectrogram(specFilePath, outputPath):
   soundfile.write(str(audioFilePath), y, sr)
 
 
-
 if len(sys.argv) < 3:
   print("Usage: python " + sys.argv[0] + " <spectrogram_file_or_dir> <output_dir> <number_of_samples=full_duration>")
   exit(-1)

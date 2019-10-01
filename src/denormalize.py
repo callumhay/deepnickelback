@@ -5,8 +5,8 @@ from pathlib import Path
 import dnb_constants
 import data_funcs
 
-if len(sys.argv) < 3:
-  print("Usage: python " + sys.argv[0] + " <spectrogram_dir> <spectrogram_file> <output_dir>")
+if len(sys.argv) < 4:
+  print("Usage: python " + sys.argv[0] + " <spectrogram_dir> <spectrogram_file> <output_dir> <(denormalize|destandardize)>")
   exit(-1)
 
 spectrogramDir = sys.argv[1]
@@ -26,11 +26,25 @@ if not outputPath.exists():
   exit(-1)
 outputPath = outputPath.resolve()
 
-outputFilePath = outputPath.joinpath(specFilePath.stem.replace("[NORMALIZED]", "[DENORMALIZED]") + ".npy").resolve()
-sr = 22050
+process_type = sys.argv[4]
 
-print("Loading file " + specFile + "...")
-S = np.load(specFilePath)
-S = data_funcs.denormalize(S, data_funcs.get_norm_spec_filepath(spectrogramPath))
+if process_type == "denormalize":
+  outputFilePath = outputPath.joinpath(specFilePath.stem.replace("[NORMALIZED]", "[DENORMALIZED]") + ".npy").resolve()
+  sr = 22050
+  print("Loading file " + specFile + "...")
+  S = np.load(specFilePath)
+  S = data_funcs.denormalize(S, data_funcs.get_norm_spec_filepath(spectrogramPath))
 
+elif process_type == "destandardize":
+  outputFilePath = outputPath.joinpath(specFilePath.stem.replace("[STANDARDIZED]", "[DESTANDARDIZED]") + ".npy").resolve()
+  sr = 22050
+  print("Loading file " + specFile + "...")
+  S = np.load(specFilePath)
+  S = data_funcs.destandardize(S, data_funcs.get_std_spec_filepath(specFilePath))
+
+else:
+  print("Process type '" + process_type + "' not found.")
+  exit(-1)
+
+print("Saving file " + str(outputFilePath))
 np.save(outputFilePath, S)

@@ -33,8 +33,10 @@
       "program": "${file}",
       "console": "integratedTerminal",
       "args": [
-        "./assets/music/terrible/normalized",
-        "./assets/spectrograms_256"
+        "./assets/music/terrible/with_pitch_down",
+        "./assets/spectrograms_256",
+        "standardize",
+        "_with_pitch_down"
       ]
     },
     {
@@ -44,30 +46,58 @@
       "program": "${file}",
       "console": "integratedTerminal",
       "args": [
-        "./assets/spectrograms_256/normalized/01. How You Remind Me [NORMALIZED].npy",
+        "./assets/spectrograms_256/standardized/03. Photograph (2) [STANDARDIZED].npy",
         "./assets/music/generated/data",
-        "30",
+        "15",
         "./training_checkpoints",
         "./assets/spectrograms_256"
       ]
     },
     {
-      "name": "Python: trainer.py",
+      "name": "Python: nickelback_merge.py",
       "type": "python",
       "request": "launch",
       "program": "${file}",
       "console": "integratedTerminal",
       "args": [
-        "./assets/spectrograms_256/small_dataset",
-        "./training_checkpoints"
+        "--output_dirpath", "./assets/music/generated/data", 
+        //"--duration", "20",
+        "./assets/spectrograms_256/less_terrible/standardized/Toto - Africa [STANDARDIZED].npy",
+        "./assets/spectrograms_256/less_terrible/standardized",
+        "./training_checkpoints",
       ]
     },
     {
-      "name": "Python: Current File",
+      "name": "Python: nickelback_merge.py (whole song)",
       "type": "python",
       "request": "launch",
       "program": "${file}",
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "args": [
+        "--output_dirpath", "./assets/music/generated/data", 
+        "./assets/spectrograms_256/less_terrible/standardized/Nyan Cat [STANDARDIZED].npy",
+        "./assets/spectrograms_256/less_terrible/standardized",
+        "./training_checkpoints",
+      ]
+    },
+    {
+      "name": "Python: trainer.py (std)",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "args": [
+        "./assets/spectrograms_256/standardized",
+        "./training_checkpoints"
+      ],
+    },
+    {
+      "name": "Python: Current File (Music Gen)",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/libs/music-generation-master"
     }
   ]
 }
